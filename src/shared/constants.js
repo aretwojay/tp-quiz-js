@@ -71,4 +71,44 @@ export const QUIZS_DATA = [
       },
     ],
   },
+  {
+    id: 3,
+    title: "History Quiz",
+    questions: [
+      {
+        id: 1,
+        question: "Who was the first president of the United States?",
+        options: [
+          "George Washington",
+          "Thomas Jefferson",
+          "Abraham Lincoln",
+          "John Adams",
+        ],
+        answer: "George Washington",
+      },
+      {
+        id: 2,
+        question: "What year did World War II end?",
+        options: ["1945", "1939", "1944", "1946"],
+        answer: "1945",
+      },
+      {
+        id: 3,
+        question: "Who discovered America?",
+        options: [
+          "Christopher Columbus",
+          "Ferdinand Magellan",
+          "Marco Polo",
+          "Leif Erikson",
+        ],
+        answer: "Christopher Columbus",
+      },
+      {
+        id: 4,
+        question: "What was the name of the ship that sank in 1912?",
+        options: ["Titanic", "Lusitania", "Britannic", "Olympic"],
+        answer: "Titanic",
+      },
+    ],
+  },
 ];

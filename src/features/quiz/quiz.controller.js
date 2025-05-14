@@ -10,7 +10,7 @@ class QuizController {
 
     this.currentQuestionIndex = 0;
     this.questions = this.quiz.questions.map(
-      (question) => new QuestionController(question.id)
+      (question) => new QuestionController(this.quiz.id, question.id)
     );
 
     const startButton = document.getElementById("start-button");
@@ -19,6 +19,7 @@ class QuizController {
       startButton.classList.add("d-none");
       this.renderQuiz();
       this.bindEvents();
+      this.bindEventsOptions();
     });
   }
 
@@ -34,23 +35,27 @@ class QuizController {
     this.quizView.render(this.quiz.title, this.getCurrentQuestion());
   }
 
+  bindEventsOptions() {
+    const options = document.querySelectorAll("input[name='option']");
+
+    options.forEach((option) => {
+      option.removeEventListener("change", () => {});
+      option.addEventListener("change", (event) => {
+        const currentQuestion = this.getCurrentQuestion();
+        const selectedAnswer = event.target.value;
+        currentQuestion.setUserAnswer(selectedAnswer);
+      });
+    });
+  }
+
   bindEvents() {
     const previousButton = document.getElementById("prev-button");
     const nextButton = document.getElementById("next-button");
-    const options = document.querySelectorAll("input[name='option']");
-    const currentQuestion = this.getCurrentQuestion();
-
-    options.forEach((option) => {
-      option.addEventListener("change", (event) => {
-        const selectedAnswer = event.target.value;
-        currentQuestion.setUserAnswer(selectedAnswer);
-        console.log(
-          `Réponse sélectionnée : ${selectedAnswer} pour la question ${
-            this.currentQuestionIndex + 1
-          }`
-        );
-      });
-    });
+    const submitButton = document.getElementById("submit-button");
+    // Remove previous event listeners to avoid duplicates
+    nextButton.removeEventListener("click", () => {});
+    previousButton.removeEventListener("click", () => {});
+    submitButton.removeEventListener("click", () => {});
 
     previousButton.classList.remove("d-none");
     nextButton.classList.remove("d-none");
@@ -69,7 +74,9 @@ class QuizController {
     });
 
     nextButton.addEventListener("click", () => {
+      const currentQuestion = this.getCurrentQuestion();
       const userAnswer = currentQuestion.getUserAnswer();
+
       if (!userAnswer) {
         alert("Veuillez répondre à la question avant de continuer.");
         return;
@@ -78,19 +85,33 @@ class QuizController {
       if (this.currentQuestionIndex < this.quiz.questions.length - 1) {
         this.currentQuestionIndex++;
         if (this.currentQuestionIndex === this.quiz.questions.length - 1) {
-          nextButton.innerHTML = "Terminer";
+          submitButton.classList.remove("d-none");
+          nextButton.classList.add("d-none");
         }
 
         previousButton.disabled = false;
-        currentQuestion.setUserAnswer(userAnswer);
         this.renderQuiz();
       }
+      this.bindEventsOptions();
+    });
 
-      if (this.currentQuestionIndex === this.quiz.questions.length - 1) {
-        this.answerQuestion(
-          this.getCurrentQuestion().getAnswer(),
-          this.currentQuestionIndex
-        );
+    submitButton.addEventListener("click", () => {
+      const currentQuestion = this.getCurrentQuestion();
+      const userAnswer = currentQuestion.getUserAnswer();
+      if (!userAnswer) {
+        alert("Veuillez répondre à la question avant de soumettre.");
+        return;
+      }
+
+      this.currentQuestionIndex++;
+      if (this.isQuizComplete()) {
+        this.quizView.renderResults(this.questions);
+        currentQuestion.emptyQuestionContainer();
+        previousButton.classList.add("d-none");
+        nextButton.classList.add("d-none");
+        submitButton.classList.add("d-none");
+      } else {
+        this.renderQuiz();
       }
     });
   }
